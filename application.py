@@ -59,7 +59,8 @@ class Application(QMainWindow):
         if self.currentDocPath is None:
             title, ok = QInputDialog.getText(self, 'Save', 'Please enter a name for the document.')
             if not ok:
-                QMessageBox.information(title='Error', test="This failed but I don't know why!")
+                QMessageBox.information(self, 'Error', 'Save failed.')
+                return
             self.currentDocPath = os.path.join(os.getcwd(), title)
 
         f = open(self.currentDocPath, 'w')
@@ -67,9 +68,10 @@ class Application(QMainWindow):
         f.close()
 
     def openFile(self):
-        title, ok = QInputDialog.getText(self, 'Save', 'Please enter the name of the document.')
+        title, ok = QInputDialog.getText(self, 'Load', 'Please enter the name of the document.')
         if not ok:
-            QMessageBox.information(self, 'Error', "This failed but I don't know why!")
+            QMessageBox.information(self, 'Error', "Load failed.")
+            return
         path = os.path.join(os.getcwd(), title)
 
         try:
