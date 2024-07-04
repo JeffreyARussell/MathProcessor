@@ -2,15 +2,14 @@
 
 import sys
 import os
-from mainmenu import MainMenuBar
-from actions import getExitAct
-from maintoolbar import MainToolBar
 from PyQt6.QtWidgets import QMainWindow, QMessageBox, QApplication, QTextEdit, QInputDialog
 from PyQt6.QtGui import QTextDocument
+from mainmenu import MainMenuBar
+from maintoolbar import MainToolBar
 
 MAGIC_SIZE_LIMIT = 10000
 
-class Example(QMainWindow):
+class Application(QMainWindow):
 
     def __init__(self):
         super().__init__()
@@ -86,7 +85,7 @@ class Example(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
-    ex = Example()
+    ex = Application()
     sys.exit(app.exec())
 
 if __name__ == '__main__':

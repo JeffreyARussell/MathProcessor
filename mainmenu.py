@@ -1,5 +1,7 @@
 from PyQt6.QtWidgets import QMenuBar
-from actions import getExitAct, getSettingsAct, getSaveAct, getOpenAct, getMathBindingsAct
+from PyQt6.QtGui import QAction
+from actions import getExitAct, getSaveAct, getOpenAct
+from settings import SettingsWindow, MathBindingsWindow
 
 class MainMenuBar(QMenuBar):
     def __init__(self, parent, saveFunction, openFunction):
@@ -10,7 +12,7 @@ class MainMenuBar(QMenuBar):
     def initMenu(self,  saveFunction, openFunction):
         exitAct = getExitAct(self)
 
-        settingsAct = getSettingsAct(self)
+        settingsAct = self.getSettingsAct()
 
         saveAct = getSaveAct(self)
         saveAct.triggered.connect(saveFunction)
@@ -18,7 +20,7 @@ class MainMenuBar(QMenuBar):
         openAct = getOpenAct(self)
         openAct.triggered.connect(openFunction)
 
-        mathBindingsAct = getMathBindingsAct(self)
+        mathBindingsAct = self.getMathBindingsAct()
 
         fileMenu = self.addMenu('&File')
         fileMenu.addAction(saveAct)
@@ -28,3 +30,31 @@ class MainMenuBar(QMenuBar):
         settingsMenu = self.addMenu('&Settings')
         settingsMenu.addAction(mathBindingsAct)
         settingsMenu.addAction(settingsAct)
+
+    def getSettingsAct(self):
+        settingsAct = QAction('&Settings', self)
+        settingsAct.setShortcut("Ctrl+I")
+        settingsAct.setStatusTip('Open settings')
+        settingsAct.triggered.connect(lambda: self.createSettingsWindowEvent())
+        return settingsAct
+
+    def getMathBindingsAct(self):
+        mathBindingsAct = QAction('&Math Bindings', self)
+        mathBindingsAct.setShortcut("Ctrl+M")
+        mathBindingsAct.setStatusTip('Open the list of bindings for math characters.')
+        mathBindingsAct.triggered.connect(lambda: self.createMathBindingsEvent())
+        return mathBindingsAct
+
+    def createSettingsWindowEvent(self, parentWidget):
+        if not hasattr(parentWidget, "settings"):
+            self.settings = SettingsWindow()
+            self.settings.show()
+        else:
+            self.settings.show()
+
+    def createMathBindingsEvent(self):
+        if not hasattr(self, "mathbindings"):
+            self.mathbindings = MathBindingsWindow()
+            self.mathbindings.show()
+        else:
+            self.mathbindings.show()
