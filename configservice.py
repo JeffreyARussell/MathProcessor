@@ -1,16 +1,13 @@
 import configparser
 import os
 from PyQt6.QtWidgets import QMessageBox
-
-SHORTCUT_CONFIG_FILE_NAME = 'shortcuts.conf'
-SHORTCUT_SECTION_NAME = "Shortcuts"
-SPECIAL_CHARACTERS_SECTION_NAME = "Special_Characters"
-SPECIAL_CHARACTERS_OPTION_NAME = 'special_characters_list'
-SECTION_NAMES = [
-    SHORTCUT_SECTION_NAME,
-    SPECIAL_CHARACTERS_SECTION_NAME
-]
-CONFIG_PATH = os.path.join(os.getcwd(), SHORTCUT_CONFIG_FILE_NAME)
+from constants import (CONFIG_PATH,
+                    SECTION_NAMES,
+                    SHORTCUT_CONFIG_FILE_NAME,
+                    SHORTCUT_SECTION_NAME,
+                    SPECIAL_CHARACTERS_OPTION_NAME,
+                    SPECIAL_CHARACTERS_SECTION_NAME
+                    )
 
 def validate_config():
     config = configparser.ConfigParser()
