@@ -4,6 +4,7 @@ import sys
 import os
 from PyQt6.QtWidgets import QMainWindow, QMessageBox, QApplication, QTextEdit, QInputDialog
 from PyQt6.QtGui import QTextDocument
+from configservice import validate_config
 from mainmenu import MainMenuBar
 from maintoolbar import MainToolBar
 from maintextwindow import MainTextWindow
@@ -87,6 +88,7 @@ class Application(QMainWindow):
         self.centralWidget().setDocument(doc)
 
 def main():
+    validate_config()
     app = QApplication(sys.argv)
     ex = Application()
     sys.exit(app.exec())
