@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import QMainWindow, QMessageBox, QApplication, QTextEdit, Q
 from PyQt6.QtGui import QTextDocument
 from mainmenu import MainMenuBar
 from maintoolbar import MainToolBar
+from maintextwindow import MainTextWindow
 
 MAGIC_SIZE_LIMIT = 10000
 
@@ -26,7 +27,7 @@ class Application(QMainWindow):
         self.setWindowTitle('New Document')
         self.initMenuBar()
 
-        textEdit = QTextEdit()
+        textEdit = MainTextWindow()
         self.setCentralWidget(textEdit)
 
         self.show()

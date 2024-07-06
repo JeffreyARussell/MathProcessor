@@ -23,7 +23,7 @@ class MathBindingsWindow(QWidget):
         grid = QGridLayout()
         self.setLayout(grid)
 
-        mathChars = ['\u222B', '\u2200', '\u2203', '\u2204', '\u2205', '\u2208']
+        mathChars = ['\u222B', '\u2200', '\u2203', '\u2204', '\u2205', '\u2208', '\u2210']
 
         HORIZONTAL = 5
         vertical = len(mathChars) // 5 + 1
@@ -69,7 +69,7 @@ class MathBindingShortcutWindow(QWidget):
             self.setWindowTitle(self.math_char_name + ' Shortcut')
 
         def createSaveButton(self, shortcutLineEdit):
-            if shortcutLineEdit.text() is None:
+            if shortcutLineEdit.text() is "":
                 return
             write_shortcut(self.math_char_name, shortcutLineEdit.text())
             self.destroy()
