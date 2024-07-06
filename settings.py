@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QGridLayout, QPushButton, QLabel, QLineEdit
 from actions import getExitAct
-from mathshortcutsservice import write_shortcut
+from configservice import write_shortcut
 
 class SettingsWindow(QWidget):
 
