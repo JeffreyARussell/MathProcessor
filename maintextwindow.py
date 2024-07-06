@@ -1,7 +1,7 @@
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QKeyEvent, QTextCursor, QKeySequence
+from PyQt6.QtGui import QTextCursor, QKeySequence
 from PyQt6.QtWidgets import QTextEdit
-from configservice import get_character_from_shortcut, validate_config
+from configservice import get_character_from_shortcut
 
 WHITESPACE_KEYS = [
     Qt.Key.Key_Tab.value,
@@ -13,13 +13,7 @@ SHORTCUT_START_CHAR = '/'
 SHORTCUT_START_KEY = QKeySequence.fromString(SHORTCUT_START_CHAR)[0].key().value
 CODE_TERMINATER_KEYS = [
     *WHITESPACE_KEYS,
-    Qt.Key.Key_Slash.value
-]
-RESET_KEYS = [
-    Qt.Key.Key_Left.value,
-    Qt.Key.Key_Right.value,
-    Qt.Key.Key_Up.value,
-    Qt.Key.Key_Down.value
+    SHORTCUT_START_KEY
 ]
 MAX_SEARCH_DISTANCE = 4
 
