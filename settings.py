@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QWidget, QGridLayout, QPushButton, QLabel, QLineEdit
+from PyQt6.QtWidgets import QWidget, QGridLayout, QPushButton, QMessageBox
 from actions import getExitAct
 from configservice import write_shortcut, write_special_character, get_special_character_list
 from genericlineentrybox import GenericLineEntryBox
@@ -73,6 +73,33 @@ class MathBindingsWindow(QWidget):
         self.addSpecialSymbolWindow = GenericLineEntryBox(window_title, label, self.write_special_character_and_refresh, [])
         self.addSpecialSymbolWindow.show()
 
-    def write_special_character_and_refresh(self, name):
-        write_special_character(name)
+    def write_special_character_and_refresh(self, code_list):
+        if code_list == "":
+                return
+            
+        codes = code_list.split(',')
+        unicode_chrs = []
+        failed_codes = []
+        for code in codes:
+            result = self.convert_input_to_unicode_character(code)
+            if result is None:
+                failed_codes.append(code)
+            else:
+                unicode_chrs.append(result)
+        if unicode_chrs == []:
+            QMessageBox.information(self, 'Error', 'All special characters failed to add. Please check that your code is a valid unicode character.')
+        elif failed_codes != []:
+            message = 'Failed to add special characters for codes ' + ', '.join(failed_codes) + '. Please check that these codes are valid unicode characters.'
+            QMessageBox.information(self, 'Error', message)
+        
+        for char in unicode_chrs:
+            write_special_character(char)
         self.reload_grid()
+
+    def convert_input_to_unicode_character(self, input):
+        try:
+            input_as_int = int(input, 16)
+            unicode_chr = chr(input_as_int)
+        except:
+            return None
+        return unicode_chr
