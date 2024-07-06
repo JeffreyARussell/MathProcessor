@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
-import sys
+import io
 import os
+import sys
 from PyQt6.QtWidgets import QMainWindow, QMessageBox, QApplication, QTextEdit, QInputDialog
 from PyQt6.QtGui import QTextDocument
 from configservice import validate_config
@@ -65,7 +66,7 @@ class Application(QMainWindow):
                 return
             self.currentDocPath = os.path.join(os.getcwd(), title)
 
-        f = open(self.currentDocPath, 'w')
+        f = io.open(self.currentDocPath, mode='w', encoding='utf-8')
         f.write(self.centralWidget().toPlainText())
         f.close()
 
@@ -77,7 +78,7 @@ class Application(QMainWindow):
         path = os.path.join(os.getcwd(), title)
 
         try:
-            f = open(path, 'r')
+            f = io.open(path, mode='r', encoding='utf-8')
         except FileNotFoundError:
             QMessageBox.information(self, 'Read Error', 'Read failed, please check that the file exists.')
             return
