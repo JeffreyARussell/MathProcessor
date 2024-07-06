@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QGridLayout, QPushButton, QMessageBox
-from actions import getExitAct
 from configservice import write_shortcut, write_special_character, get_special_character_list
+from constants import SHORTCUT_START_CHAR
 from genericlineentrybox import GenericLineEntryBox
 
 class SettingsWindow(QWidget):
@@ -64,7 +64,7 @@ class MathBindingsWindow(QWidget):
     def createMathSymbolShortcutWindow(self, name):
         label = 'Please enter the code for the ' + name + ' symbol.'
         window_title = name + " Code"
-        self.mathSymbolWindow = GenericLineEntryBox(window_title, label, write_shortcut, [name])
+        self.mathSymbolWindow = GenericLineEntryBox(window_title, label, self.validate_and_write_math_shortcut, [name])
         self.mathSymbolWindow.show()
 
     def createAddSpecialSymbolWindow(self):
@@ -73,7 +73,15 @@ class MathBindingsWindow(QWidget):
         self.addSpecialSymbolWindow = GenericLineEntryBox(window_title, label, self.write_special_character_and_refresh, [])
         self.addSpecialSymbolWindow.show()
 
-    def write_special_character_and_refresh(self, code_list):
+    def validate_and_write_math_shortcut(self, parent, name, shortcut):
+        if shortcut.find(SHORTCUT_START_CHAR) != -1:
+            QMessageBox.information(parent, 'Error', 'You cannot use the shortcut start character in a shortcut, please try again.')
+            return False
+        write_shortcut(name, shortcut)
+        return True
+                
+
+    def write_special_character_and_refresh(self, parent, code_list):
         if code_list == "":
                 return
             
@@ -87,14 +95,17 @@ class MathBindingsWindow(QWidget):
             else:
                 unicode_chrs.append(result)
         if unicode_chrs == []:
-            QMessageBox.information(self, 'Error', 'All special characters failed to add. Please check that your code is a valid unicode character.')
+            QMessageBox.information(parent, 'Error', 'All special characters failed to add. Please check that your code is a valid unicode character.')
+            return False
         elif failed_codes != []:
             message = 'Failed to add special characters for codes ' + ', '.join(failed_codes) + '. Please check that these codes are valid unicode characters.'
-            QMessageBox.information(self, 'Error', message)
+            QMessageBox.information(parent, 'Error', message)
+            return False
         
         for char in unicode_chrs:
             write_special_character(char)
         self.reload_grid()
+        return True
 
     def convert_input_to_unicode_character(self, input):
         try:
