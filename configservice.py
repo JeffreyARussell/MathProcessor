@@ -41,7 +41,11 @@ def write_shortcut(character, shortcut):
         used_character = config[SHORTCUT_SECTION_NAME][shortcut]
         QMessageBox.information(None, "Shortcut Error", "The entered shortcut is already in use for " + used_character)
         return
-    config[SHORTCUT_SECTION_NAME][shortcut] = character
+    if config.has_option(SHORTCUT_SECTION_NAME, character):
+        previous_shortcut = config[SHORTCUT_SECTION_NAME][character]
+        config.remove_option(SHORTCUT_SECTION_NAME, previous_shortcut)
+    config.set(SHORTCUT_SECTION_NAME, shortcut, character)
+    config.set(SHORTCUT_SECTION_NAME, character, shortcut)
 
     with open(SHORTCUT_CONFIG_FILE_NAME, 'w', encoding='utf-8') as configfile:
         config.write(configfile)
@@ -50,6 +54,11 @@ def get_character_from_shortcut(shortcut):
     config = get_config_parser()
 
     return config.get(SHORTCUT_SECTION_NAME, shortcut, fallback=None)
+
+def get_shortcut_from_character(character):
+    config = get_config_parser()
+
+    return config.get(SHORTCUT_SECTION_NAME, character, fallback=None)
 
 def write_special_character(character):
     print(character)

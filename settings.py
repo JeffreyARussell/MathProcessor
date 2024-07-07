@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QWidget, QGridLayout, QPushButton, QMessageBox
-from configservice import write_shortcut, write_special_character, get_special_character_list
+from configservice import write_shortcut, write_special_character, get_special_character_list, get_shortcut_from_character
 from constants import SHORTCUT_START_CHAR
 from genericlineentrybox import GenericLineEntryBox
 
@@ -64,13 +64,14 @@ class MathBindingsWindow(QWidget):
     def createMathSymbolShortcutWindow(self, name):
         label = 'Please enter the code for the ' + name + ' symbol.'
         window_title = name + " Code"
-        self.mathSymbolWindow = GenericLineEntryBox(window_title, label, self.validate_and_write_math_shortcut, [name])
+        current_shortcut = get_shortcut_from_character(name)
+        self.mathSymbolWindow = GenericLineEntryBox(window_title, label, self.validate_and_write_math_shortcut, save_function_options=[name], default_text=current_shortcut)
         self.mathSymbolWindow.show()
 
     def createAddSpecialSymbolWindow(self):
         label = 'Please entire the special symbols you want to add separated by commas:'
         window_title = 'Add Special Symbols'
-        self.addSpecialSymbolWindow = GenericLineEntryBox(window_title, label, self.write_special_character_and_refresh, [])
+        self.addSpecialSymbolWindow = GenericLineEntryBox(window_title, label, self.write_special_character_and_refresh)
         self.addSpecialSymbolWindow.show()
 
     def validate_and_write_math_shortcut(self, parent, name, shortcut):
