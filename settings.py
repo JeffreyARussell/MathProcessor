@@ -1,6 +1,8 @@
-from PyQt6.QtWidgets import QWidget, QGridLayout, QPushButton, QMessageBox
-from configservice import write_shortcut, write_special_character, get_special_character_list, get_shortcut_from_character
-from constants import SHORTCUT_START_CHAR
+from PyQt6.QtWidgets import QWidget, QGridLayout, QPushButton, QMessageBox, QLineEdit, QLabel, QScrollArea
+from configservice import write_shortcut, write_special_character, get_special_character_list
+from exceptions import (ShortcutInUseException,
+                        ShortcutContainsStartCharException
+)
 from genericlineentrybox import GenericLineEntryBox
 
 class SettingsWindow(QWidget):
@@ -24,65 +26,39 @@ class MathBindingsWindow(QWidget):
         grid = QGridLayout()
         self.setLayout(grid)
 
-        mathChars = get_special_character_list() # ['\u222B', '\u2200', '\u2203', '\u2204', '\u2205', '\u2208', '\u2210']
+        special_characters = get_special_character_list()
+        symbol_binding_widget = SymbolBindingWidget()
+        for char in special_characters:
+            symbol_binding_widget.addSymbolBindingLine(char)
 
-        HORIZONTAL = 5
-        vertical = len(mathChars) // 5 + 1
-        positions = [(i, j) for i in range(vertical) for j in range(HORIZONTAL)]
-
-        for position, name in zip(positions, mathChars):
-            grid.addWidget(self.createMathSymbolEntry(name), *position)
-        
+        self.scroll = QScrollArea()
+        self.scroll.setWidget(symbol_binding_widget)
         self.addSymbolButton = self.createAddSymbolButton()
-        grid.addWidget(self.addSymbolButton, vertical, 2)
+        self.applyButton = self.createApplyButton(symbol_binding_widget.saveShortcuts)
+
+        grid.addWidget(self.scroll, 1, 1, 1, 2)
+        grid.addWidget(self.applyButton, 2, 1)
+        grid.addWidget(self.addSymbolButton, 2, 2)
+        grid.setSpacing(5)
         self.setWindowTitle('Math Bindings')
-
-    def reload_grid(self):
-        grid = self.layout()
-        grid.removeWidget(self.addSymbolButton)
-        mathChars = get_special_character_list() # ['\u222B', '\u2200', '\u2203', '\u2204', '\u2205', '\u2208', '\u2210']
-
-        HORIZONTAL = 5
-        vertical = len(mathChars) // 5 + 1
-        positions = [(i, j) for i in range(vertical) for j in range(HORIZONTAL)]
-
-        for position, name in zip(positions, mathChars):
-            grid.addWidget(self.createMathSymbolEntry(name), *position)
-        
-        grid.addWidget(self.addSymbolButton, vertical, 2)
-
-    def createMathSymbolEntry(self, name):
-        button = QPushButton(name)
-        button.clicked.connect(lambda: self.createMathSymbolShortcutWindow(name))
-        return button
     
     def createAddSymbolButton(self):
         button = QPushButton('Add new special characters')
         button.clicked.connect(lambda: self.createAddSpecialSymbolWindow())
         return button
     
-    def createMathSymbolShortcutWindow(self, name):
-        label = 'Please enter the code for the ' + name + ' symbol.'
-        window_title = name + " Code"
-        current_shortcut = get_shortcut_from_character(name)
-        self.mathSymbolWindow = GenericLineEntryBox(window_title, label, self.validate_and_write_math_shortcut, save_function_options=[name], default_text=current_shortcut)
-        self.mathSymbolWindow.show()
+    def createApplyButton(self, apply_function):
+        button = QPushButton('Apply')
+        button.clicked.connect(lambda: apply_function())
+        return button
 
     def createAddSpecialSymbolWindow(self):
         label = 'Please entire the special symbols you want to add separated by commas:'
         window_title = 'Add Special Symbols'
-        self.addSpecialSymbolWindow = GenericLineEntryBox(window_title, label, self.write_special_character_and_refresh)
+        self.addSpecialSymbolWindow = GenericLineEntryBox(window_title, label, self.add_special_characters)
         self.addSpecialSymbolWindow.show()
-
-    def validate_and_write_math_shortcut(self, parent, name, shortcut):
-        if shortcut.find(SHORTCUT_START_CHAR) != -1:
-            QMessageBox.information(parent, 'Error', 'You cannot use the shortcut start character in a shortcut, please try again.')
-            return False
-        write_shortcut(name, shortcut)
-        return True
-                
-
-    def write_special_character_and_refresh(self, parent, code_list):
+    
+    def add_special_characters(self, parent, code_list):
         if code_list == "":
                 return
             
@@ -98,14 +74,16 @@ class MathBindingsWindow(QWidget):
         if unicode_chrs == []:
             QMessageBox.information(parent, 'Error', 'All special characters failed to add. Please check that your code is a valid unicode character.')
             return False
-        elif failed_codes != []:
+        
+        symbol_binding_widget = self.scroll.widget()
+        for char in unicode_chrs:
+            write_special_character(char)
+            symbol_binding_widget.addSymbolBindingLine(char)
+
+        if failed_codes != []:
             message = 'Failed to add special characters for codes ' + ', '.join(failed_codes) + '. Please check that these codes are valid unicode characters.'
             QMessageBox.information(parent, 'Error', message)
             return False
-        
-        for char in unicode_chrs:
-            write_special_character(char)
-        self.reload_grid()
         return True
 
     def convert_input_to_unicode_character(self, input):
@@ -115,3 +93,67 @@ class MathBindingsWindow(QWidget):
         except:
             return None
         return unicode_chr
+
+class SymbolBindingWidget(QWidget):
+
+    def __init__(self):
+        super().__init__()
+
+        self.initUI()
+        self.initLogic()
+
+    def initUI(self):
+        self.grid = QGridLayout()
+        self.setLayout(self.grid)
+
+    def initLogic(self):
+        self.symbolBindingLineList = []
+
+    def addSymbolBindingLine(self, char):
+        new_symbol_binding_line = SymbolBindingLine(char)
+        self.symbolBindingLineList.append(new_symbol_binding_line)
+        self.grid.addWidget(new_symbol_binding_line, self.grid.rowCount(), 1)
+
+    def saveShortcuts(self):
+        for line in self.symbolBindingLineList:
+            line.save_shortcut()
+
+class SymbolBindingLine(QWidget):
+
+    def __init__(self, char):
+        super().__init__()
+
+        self.char = char
+        self.changed = False
+        self.initUI()
+    
+    def initUI(self):
+        self.label = QLabel(self.char + ':', self)
+        self.lineEntry = QLineEdit(self)
+    
+        self.lineEntry.textChanged.connect(lambda: self.set_changed(True))
+
+        grid = QGridLayout()
+        self.setLayout(grid)
+
+        grid.addWidget(self.label, 1, 1)
+        grid.addWidget(self.lineEntry, 1, 2)
+
+    def get_char(self):
+        return self.char
+    
+    def get_shortcut(self):
+        return self.lineEntry.text()
+
+    def set_changed(self, new_value):
+        self.changed = new_value
+    
+    def save_shortcut(self):
+        if self.changed:
+            try:
+                write_shortcut(self.char, self.lineEntry.text())
+            except ShortcutInUseException as e:
+                print('Shortcut in use')
+            except ShortcutContainsStartCharException as e:
+                print('Shortcut contains start character')
+        return None

@@ -1,13 +1,16 @@
 import configparser
 import os
-from PyQt6.QtWidgets import QMessageBox
 from constants import (CONFIG_PATH,
                     SECTION_NAMES,
                     SHORTCUT_CONFIG_FILE_NAME,
                     SHORTCUT_SECTION_NAME,
+                    SHORTCUT_START_CHAR,
                     SPECIAL_CHARACTERS_OPTION_NAME,
                     SPECIAL_CHARACTERS_SECTION_NAME
-                    )
+)
+from exceptions import (ShortcutInUseException,
+                        ShortcutContainsStartCharException
+)
 
 def validate_config():
     config = configparser.ConfigParser()
@@ -37,10 +40,11 @@ def initialize_section(section_name, config):
 def write_shortcut(character, shortcut):
     config = get_config_parser()
     
+    if shortcut.find(SHORTCUT_START_CHAR) != -1:
+        return ShortcutContainsStartCharException
     if config.has_option(SHORTCUT_SECTION_NAME, shortcut):
         used_character = config[SHORTCUT_SECTION_NAME][shortcut]
-        QMessageBox.information(None, "Shortcut Error", "The entered shortcut is already in use for " + used_character)
-        return
+        return ShortcutInUseException(used_character)
     if config.has_option(SHORTCUT_SECTION_NAME, character):
         previous_shortcut = config[SHORTCUT_SECTION_NAME][character]
         config.remove_option(SHORTCUT_SECTION_NAME, previous_shortcut)
