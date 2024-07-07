@@ -3,7 +3,7 @@
 import io
 import os
 import sys
-from PyQt6.QtWidgets import QMainWindow, QMessageBox, QApplication, QTextEdit, QInputDialog
+from PyQt6.QtWidgets import QMainWindow, QMessageBox, QApplication, QInputDialog
 from PyQt6.QtGui import QTextDocument
 from configservice import validate_config
 from mainmenu import MainMenuBar
@@ -48,6 +48,9 @@ class Application(QMainWindow):
         self.move(qr.topLeft())
 
     def closeEvent(self, event):
+        if self.centralWidget().toPlainText() == '':
+            event.accept()
+            return
 
         reply = QMessageBox.question(self, 'Message',
                     "Are you sure you want to quit?", QMessageBox.StandardButton.Yes |
