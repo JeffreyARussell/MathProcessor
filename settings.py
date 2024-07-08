@@ -1,5 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QGridLayout, QPushButton, QMessageBox, QLineEdit, QLabel, QScrollArea
-from configservice import write_shortcut, write_special_character, get_special_character_list
+from collections import deque
+from configservice import write_shortcut, write_special_character, get_special_character_list, get_shortcut_from_character, delete_shortcut
 from exceptions import (ShortcutInUseException,
                         ShortcutContainsStartCharException
 )
@@ -33,6 +34,7 @@ class MathBindingsWindow(QWidget):
 
         self.scroll = QScrollArea()
         self.scroll.setWidget(symbol_binding_widget)
+        self.scroll.setWidgetResizable(True)
         self.addSymbolButton = self.createAddSymbolButton()
         self.applyButton = self.createApplyButton(symbol_binding_widget.saveShortcuts)
 
@@ -116,6 +118,8 @@ class SymbolBindingWidget(QWidget):
 
     def saveShortcuts(self):
         for line in self.symbolBindingLineList:
+            line.delete_shortcut()
+        for line in self.symbolBindingLineList:
             line.save_shortcut()
 
 class SymbolBindingLine(QWidget):
@@ -129,7 +133,11 @@ class SymbolBindingLine(QWidget):
     
     def initUI(self):
         self.label = QLabel(self.char + ':', self)
-        self.lineEntry = QLineEdit(self)
+        default = get_shortcut_from_character(self.char)
+        if not default is None:
+            self.lineEntry = QLineEdit(default, self)
+        else:
+            self.lineEntry = QLineEdit(self)
     
         self.lineEntry.textChanged.connect(lambda: self.set_changed(True))
 
@@ -147,6 +155,10 @@ class SymbolBindingLine(QWidget):
 
     def set_changed(self, new_value):
         self.changed = new_value
+
+    def delete_shortcut(self):
+        if self.changed:
+            delete_shortcut(self.lineEntry.text())
     
     def save_shortcut(self):
         if self.changed:
@@ -156,4 +168,5 @@ class SymbolBindingLine(QWidget):
                 print('Shortcut in use')
             except ShortcutContainsStartCharException as e:
                 print('Shortcut contains start character')
+        self.set_changed(False)
         return None

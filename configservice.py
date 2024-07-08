@@ -54,6 +54,16 @@ def write_shortcut(character, shortcut):
     with open(SHORTCUT_CONFIG_FILE_NAME, 'w', encoding='utf-8') as configfile:
         config.write(configfile)
 
+def delete_shortcut(shortcut):
+    config = get_config_parser()
+
+    if config.has_option(SHORTCUT_SECTION_NAME, shortcut):
+        character = config[SHORTCUT_SECTION_NAME][shortcut]
+        config.remove_option(SHORTCUT_SECTION_NAME, shortcut)
+        config.remove_option(SHORTCUT_SECTION_NAME, character)
+
+    write_config_contents(config)
+
 def get_character_from_shortcut(shortcut):
     config = get_config_parser()
 
@@ -95,3 +105,7 @@ def get_config_parser():
     config.optionxform = lambda option: option
     config.read(SHORTCUT_CONFIG_FILE_NAME, encoding='utf-8')
     return config
+
+def write_config_contents(config):
+    with open(SHORTCUT_CONFIG_FILE_NAME, 'w', encoding='utf-8') as configfile:
+        config.write(configfile)
