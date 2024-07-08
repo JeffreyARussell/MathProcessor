@@ -26,4 +26,5 @@ CODE_TERMINATER_KEYS = [
     *WHITESPACE_KEYS,
     Qt.Key.Key_Slash.value
 ]
+CODE_COMPLETION_KEY = Qt.Key.Key_Tab.value
 MAX_SEARCH_DISTANCE = 4

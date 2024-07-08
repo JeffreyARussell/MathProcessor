@@ -1,7 +1,8 @@
 from PyQt6.QtGui import QTextCursor, QFont
 from PyQt6.QtWidgets import QTextEdit
 from configservice import get_character_from_shortcut
-from constants import (CODE_TERMINATER_KEYS,
+from constants import (CODE_COMPLETION_KEY,
+                       CODE_TERMINATER_KEYS,
                        MAX_SEARCH_DISTANCE,
                        SHORTCUT_START_CHAR)
 
@@ -41,6 +42,8 @@ class MainTextWindow(QTextEdit):
             character = get_character_from_shortcut(selection)
             if not character is None:
                 cursor.insertText(character)
+                if e.key() == CODE_COMPLETION_KEY:
+                    return
             break
 
         return super().keyPressEvent(e)
