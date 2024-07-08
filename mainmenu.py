@@ -35,7 +35,7 @@ class MainMenuBar(QMenuBar):
         settingsAct = QAction('&Settings', self)
         settingsAct.setShortcut("Ctrl+I")
         settingsAct.setStatusTip('Open settings')
-        settingsAct.triggered.connect(lambda: self.createSettingsWindowEvent())
+        settingsAct.triggered.connect(lambda: self.createSettingsWindowEvent(self))
         return settingsAct
 
     def getMathBindingsAct(self):
