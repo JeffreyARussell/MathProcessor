@@ -17,7 +17,6 @@ class MainTextWindow(QTextEdit):
     def initUI(self):
         math_font = QFont('Cambria Math', pointSize=15)
         self.setFont(math_font)
-        print(math_font.exactMatch())
         return
     
     def initLogic(self):
