@@ -1,4 +1,4 @@
-from PyQt6.QtGui import QTextCursor
+from PyQt6.QtGui import QTextCursor, QFont
 from PyQt6.QtWidgets import QTextEdit
 from configservice import get_character_from_shortcut
 from constants import (CODE_TERMINATER_KEYS,
@@ -14,6 +14,9 @@ class MainTextWindow(QTextEdit):
         self.initLogic()
 
     def initUI(self):
+        math_font = QFont('Cambria Math', pointSize=15)
+        self.setFont(math_font)
+        print(math_font.exactMatch())
         return
     
     def initLogic(self):
